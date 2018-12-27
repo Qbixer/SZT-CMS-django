@@ -17,7 +17,7 @@ def signup(request):
             user.save()
             current_site = get_current_site(request)
             subject = 'Activate Your MySite Account'
-            message = render_to_string('account_activation_email.html', {
+            message = render_to_string('account/account_activation_email.html', {
                 'user': user,
                 'domain': current_site.domain,
                 'uid': force_text(urlsafe_base64_encode(force_bytes(user.pk))),
@@ -27,7 +27,7 @@ def signup(request):
             return redirect('account_activation_sent')
     else:
         form = SignUpForm()
-    return render(request, 'signup.html', {'form': form})
+    return render(request, 'account/signup.html', {'form': form})
 
 def activate(request, uidb64, token):
     try:
@@ -43,7 +43,7 @@ def activate(request, uidb64, token):
         login(request, user)
         return redirect('/')
     else:
-        return render(request, 'account_activation_invalid.html')
+        return render(request, 'account/account_activation_invalid.html')
 
 def account_activation_sent(request):
-    return render(request, 'account_activation_sent.html')
+    return render(request, 'account/account_activation_sent.html')
