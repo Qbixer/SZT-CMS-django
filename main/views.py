@@ -6,11 +6,9 @@ from main.models import *
 def index(request):
     sections = Section.objects.all()
     subsections = Subsection.objects.all()
-    subsubsections = Subsubsection.objects.all()
     return render(request, 'main/index.html', {
         'sections':sections,
         'subsections':subsections,
-        'subsubsections':subsubsections
     })
 
 def category_view(request, slug):

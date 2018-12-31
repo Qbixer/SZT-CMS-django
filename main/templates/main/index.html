@@ -1,5 +1,5 @@
 {% load static %}
-
+{% load main_filters %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +7,9 @@
     <script src="{% static "js/popper.min.js" %}"></script>
     <link rel="stylesheet" href="{% static "css/bootstrap.min.css" %}">
     <script src="{% static "js/bootstrap.min.js" %}"></script>
+    <link rel="stylesheet" href="{% static "css/custom.css" %}">
+
+    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
 
 
     <title>{% block title %}My amazing site{% endblock %}</title>
@@ -18,38 +21,31 @@
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
-
-  <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Dropdown
-        </a>
-         <ul class="dropdown-menu" role="menu" aria-labelledby="navbarDropdown">            
-          <li><a href="#">asds</a></li>
-          <li class="divider"></li
-          <li><a href="#">asdasdas</a></li>
-
-        </ul>
-      </li>
-    </ul>
+  {% for section in sections %}
+  <div class="btn-group">
+    {% if section.should_display and section.url is not null and section.url|length > 0 %}
+    <a class="btn btn-danger" href={{section.url}} role="button">
+        Dropdown link
+    </a>
+    {% else %}
+    <button type="button" class="btn btn-danger">Action</button>
+    {% endif %}
+    {% if subsections|filter_sections:section|length > 0 %}
+    <button type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <span class="sr-only">Toggle Dropdown</span>
+    </button>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+      {% for subsection in subsections|filter_sections:section %}
+      <a class="dropdown-item" href={{subsection.url}}>{{subsection.title}}</a>
+      {% endfor %}
+    </div>
+    {% endif %}
   </div>
+  {% endfor %}
 </nav>
 <div>
-{% block content %}{% endblock %}
-<div class="btn-group">
-  <button type="button" class="btn btn-danger">Action</button>
-  <button type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    <span class="sr-only">Toggle Dropdown</span>
-  </button>
-  <div class="dropdown-menu">
-    <a class="dropdown-item" href="#">Action</a>
-    <a class="dropdown-item" href="#">Another action</a>
-    <a class="dropdown-item" href="#">Something else here</a>
-    <div class="dropdown-divider"></div>
-    <a class="dropdown-item" href="#">Separated link</a>
-  </div>
+  {% block content %}{% endblock %}
 </div>
-</div>
+
 </body>
 </html>
