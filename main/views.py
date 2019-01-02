@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.template import Template, Context
 from django.http import HttpResponse
 from main.models import Section,Subsection
@@ -16,7 +16,13 @@ def category_view(request, slug):
     return HttpResponse(text)
 
 def add_section(request):
-    form = SectionForm()
+    if request.method == 'POST':
+        form = SectionForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('main-index')
+    else:
+        form = SectionForm()
     return render(request, 'main/edit_section.html', {
         'form':form,
         'title':"Add section"
