@@ -9,6 +9,7 @@
     <script src="{% static "js/bootstrap.min.js" %}"></script>
     <link rel="stylesheet" href="{% static "css/custom.css" %}">
 
+    <link rel="stylesheet" href="{% static "css/all.min.css" %}">
     <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
 
 
@@ -22,13 +23,16 @@
     <span class="navbar-toggler-icon"></span>
   </button>
   {% for section in sections %}
+  {% if not section.hidden and not section.deleted %}
   <div class="btn-group">
     {% if section.should_display and section.url is not null and section.url|length > 0 %}
     <a class="btn btn-danger" href={{section.url}} role="button">
-        Dropdown link
+      {{section.title}}
     </a>
     {% else %}
-    <button type="button" class="btn btn-danger">Action</button>
+    <button type="button" class="btn btn-danger">
+      {{section.title}}
+    </button>
     {% endif %}
     {% if subsections|filter_sections:section|length > 0 %}
     <button type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -36,12 +40,30 @@
     </button>
     <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
       {% for subsection in subsections|filter_sections:section %}
-      <a class="dropdown-item" href={{subsection.url}}>{{subsection.title}}</a>
+        {% if not subsection.hidden and not subsection.deleted %}
+          {% if perms.main.can_change_subsections %}
+          <span class="dropdown-item">
+            <a  href={{subsection.url}}>{{subsection.title}}</a>
+            <i class="fas fa-edit"></i>
+          </span>
+          {% else %}
+          <a class="dropdown-item" href={{subsection.url}}>{{subsection.title}}</a>
+          {% endif %}
+        {% endif %}
       {% endfor %}
+      {% if perms.main.can_add_subsections %}        
+        <i class="dropdown-item fas fa-plus-square"></i>
+      {% endif %}
     </div>
     {% endif %}
   </div>
+  {% endif %}
   {% endfor %}
+  {% if perms.main.can_add_sections %}
+  <a class="btn btn-danger" href="add/section/" role="button">
+    <i class="fas fa-plus-square"></i>
+  </a>
+  {% endif %}
 </nav>
 <div>
   {% block content %}{% endblock %}
