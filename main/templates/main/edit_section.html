@@ -1,7 +1,7 @@
 {% extends 'main/index.html' %}
 
 {% block content %}
-  <h2>Add section</h2>
+  <h2>{{title}}</h2>
   <form method="post">
     {% csrf_token %}
     {% for field in form %}

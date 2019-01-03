@@ -9,6 +9,8 @@ from account.forms import SignUpForm
 from account.tokens import account_activation_token
 
 def signup(request):
+    if not request.user.is_anonymous:
+        return redirect('main_index')
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():

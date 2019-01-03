@@ -30,7 +30,15 @@ def add_section(request):
     })
 
 def edit_section(request,section_id):
+    current_user = request.user
+    if current_user.is_anonymous or not (current_user.is_superuser or current_user.is_staff or current_user.profile.moderator):
+        return redirect('main_index')
     section = Section.objects.get(id=section_id)
+    if request.method == 'POST':
+        form = SectionForm(request.POST,instance=section)
+        if form.is_valid():
+            form.save()
+            return redirect('main_index')
     form = SectionForm(instance=section)
     return render(request, 'main/edit_section.html', {
         'form':form,
