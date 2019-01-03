@@ -4,4 +4,4 @@ from main.models import Section, Subsection
 class SectionForm(ModelForm):   
     class Meta:
         model = Section
-        exclude = ['content']
+        exclude = ['content','deleted']

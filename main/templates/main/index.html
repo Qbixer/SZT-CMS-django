@@ -23,47 +23,56 @@
     <span class="navbar-toggler-icon"></span>
   </button>
   {% for section in sections %}
-  {% if not section.hidden and not section.deleted %}
-  <div class="btn-group">
-    {% if section.should_display and section.url is not null and section.url|length > 0 %}
-    <a class="btn btn-danger" href={{section.url}} role="button">
-      {{section.title}}
-    </a>
-    {% else %}
-    <button type="button" class="btn btn-danger">
-      {{section.title}}
-    </button>
-    {% endif %}
-    {% if subsections|filter_sections:section|length > 0 %}
-    <button type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <span class="sr-only">Toggle Dropdown</span>
-    </button>
-    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-      {% for subsection in subsections|filter_sections:section %}
-        {% if not subsection.hidden and not subsection.deleted %}
-          {% if perms.main.can_change_subsections %}
-          <span class="dropdown-item">
-            <a  href={{subsection.url}}>{{subsection.title}}</a>
-            <i class="fas fa-edit"></i>
-          </span>
-          {% else %}
-          <a class="dropdown-item" href={{subsection.url}}>{{subsection.title}}</a>
+    {% if not section.hidden and not section.deleted or section.hidden and user.profile.moderator and not section.deleted or section.hidden and user.is_superuser and not section.deleted or section.hidden and user.is_staff and not section.deleted %}
+    <div class="btn-group">
+      {% if section.should_display and section.url is not null and section.url|length > 0 %}
+      <a class="btn btn-danger" href={{section.url}} role="button">
+        {{section.title}}
+      </a>
+      {% else %}
+      <button type="button" class="btn btn-danger">
+        {{section.title}}
+      </button>
+      {% endif %}
+      {% if user.profile.moderator or user.is_superuser or user.is_staff %}
+        <a class="btn btn-danger" href={% url 'edit_section' section_id=section.id %} role="button">
+          <i class="fas fa-edit"></i>
+        </a>
+      {% endif %}
+      {% if subsections|filter_sections:section|length > 0 or user.profile.moderator or user.is_superuser or user.is_staff %}
+      <button type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <span class="sr-only">Toggle Dropdown</span>
+      </button>
+      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        {% for subsection in subsections|filter_sections:section %}
+          {% if not subsection.hidden and not subsection.deleted %}
+            {% if user.profile.moderator or user.is_superuser or user.is_staff %}
+            <span class="dropdown-item">
+              <a  href={{subsection.url}}>{{subsection.title}}</a>
+              <i class="fas fa-edit"></i>
+            </span>
+            {% else %}
+            <a class="dropdown-item" href={{subsection.url}}>{{subsection.title}}</a>
+            {% endif %}
           {% endif %}
+        {% endfor %}
+        {% if user.profile.moderator or user.is_superuser or user.is_staff %}
+          <a class="dropdown-item" href={{section.url}} role="button">      
+            <i class="fas fa-plus-square"></i>
+          </a>
         {% endif %}
-      {% endfor %}
-      {% if perms.main.can_add_subsections %}        
-        <i class="dropdown-item fas fa-plus-square"></i>
+      </div>
       {% endif %}
     </div>
     {% endif %}
-  </div>
-  {% endif %}
   {% endfor %}
-  {% if perms.main.can_add_sections %}
-  <a class="btn btn-danger" href="add/section/" role="button">
-    <i class="fas fa-plus-square"></i>
-  </a>
+  {% if user.profile.moderator or user.is_superuser or user.is_staff %}
+    <a class="btn btn-danger" href="add/section/" role="button">
+      <i class="fas fa-plus-square"></i>
+    </a>
   {% endif %}
+  <a href="/account/logout">Logout</a>
+  <a href="/account/login">Login</a>
 </nav>
 <div>
   {% block content %}{% endblock %}

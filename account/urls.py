@@ -9,5 +9,5 @@ urlpatterns = [
     url(r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         account_views.activate, name='activate'),
     url(r'^login/$', auth_views.LoginView.as_view(template_name='account/login.html',redirect_authenticated_user=True), name='login'),
-    url(r'^logout/$', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
+    url(r'^logout/$', auth_views.LogoutView.as_view(next_page='/ui'), name='logout'),
 ]
