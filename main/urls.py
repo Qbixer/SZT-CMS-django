@@ -6,10 +6,12 @@ from . import views
 urlpatterns = [
     path('', views.index, name='main_index'),
     path('edit/section/<int:section_id>/',views.edit_section, name="edit_section"),
-    url(r'edit/subsection/(?P<subsection_id>[0-9]{1,})$',views.category_view, name="edit_subsection"),
+    path('edit/subsection/<int:subsection_id>',views.edit_subsection, name="edit_subsection"),
     path('add/section/',views.add_section, name="add_section"),
-    url(r'add/subsection/$',views.category_view, name="add_subsection"),
-    url(r'(?P<section_url>[a-zA-Z0-9_]{1,250})/$',views.category_view, name="section"),
+    path('add/<int:section_id>/subsection/',views.add_subsection, name="add_subsection"),
+    path('<section_url>',views.section_view, name="section"),
+    path('<section_url>/<subsection_url>',views.subsection_view, name="subsection"),
+
 
 
 ]

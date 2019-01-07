@@ -23,7 +23,7 @@
     <span class="navbar-toggler-icon"></span>
   </button>
   {% for section in sections %}
-    {% if not section.hidden and not section.deleted or section.hidden and user.profile.moderator and not section.deleted or section.hidden and user.is_superuser and not section.deleted or section.hidden and user.is_staff and not section.deleted %}
+    {% if not section.hidden and not section.deleted or section.hidden and user.profile.moderator and not section.deleted and request.session.edit_mode or section.hidden and user.is_superuser and not section.deleted and request.session.edit_mode or section.hidden and user.is_staff and not section.deleted and request.session.edit_mode %}
     <div class="btn-group">
       {% if section.should_display and section.url is not null and section.url|length > 0 %}
       <a class="btn btn-danger" href={% url 'section' section_url=section.url %} role="button">
@@ -34,42 +34,50 @@
         {{section.title}}
       </button>
       {% endif %}
-      {% if user.profile.moderator or user.is_superuser or user.is_staff %}
-        <a class="btn btn-danger" href={% url 'edit_section' section_id=section.id %} role="button">
-          <i class="fas fa-edit"></i>
-        </a>
+      {% if request.session.edit_mode %}
+        {% if user.profile.moderator or user.is_superuser or user.is_staff %}
+          <a class="btn btn-danger" href={% url 'edit_section' section_id=section.id %} role="button">
+            <i class="fas fa-edit"></i>
+          </a>
+        {% endif %}
       {% endif %}
-      {% if subsections|filter_sections:section|length > 0 or user.profile.moderator or user.is_superuser or user.is_staff %}
+      {% if subsections|filter_sections:section|length > 0 or user.profile.moderator and request.session.edit_mode or user.is_superuser and request.session.edit_mode or user.is_staff and request.session.edit_mode %}
       <button type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <span class="sr-only">Toggle Dropdown</span>
       </button>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
         {% for subsection in subsections|filter_sections:section %}
           {% if not subsection.hidden and not subsection.deleted %}
-            {% if user.profile.moderator or user.is_superuser or user.is_staff %}
+            {% if user.profile.moderator and request.session.edit_mode or user.is_superuser and request.session.edit_mode or user.is_staff and request.session.edit_mode %}
             <span class="dropdown-item">
               <a  href={{subsection.url}}>{{subsection.title}}</a>
-              <i class="fas fa-edit"></i>
+              <a  href={% url 'edit_subsection' subsection_id=subsection.id %} role="button">
+                <i class="fas fa-edit"></i>
+              </a>
             </span>
             {% else %}
-              <a class="dropdown-item" href={{subsection.url}}>{{subsection.title}}</a>
+              <a class="dropdown-item" href={% url 'subsection' section_url=section.url subsection_url=subsection.url %}>{{subsection.title}}</a>
             {% endif %}
           {% endif %}
         {% endfor %}
-        {% if user.profile.moderator or user.is_superuser or user.is_staff %}
-          <a class="dropdown-item" href={{section.url}} role="button">      
-            <i class="fas fa-plus-square"></i>
-          </a>
+        {% if request.session.edit_mode %}
+          {% if user.profile.moderator or user.is_superuser or user.is_staff %}
+            <a class="dropdown-item" href={% url 'add_subsection' section_id=section.id %} role="button">      
+              <i class="fas fa-plus-square"></i>
+            </a>
+          {% endif %}
         {% endif %}
       </div>
       {% endif %}
     </div>
     {% endif %}
   {% endfor %}
-  {% if user.profile.moderator or user.is_superuser or user.is_staff %}
-    <a class="btn btn-danger" href={% url 'add_section' %} role="button">
-      <i class="fas fa-plus-square"></i>
-    </a>
+  {% if request.session.edit_mode %}
+    {% if user.profile.moderator or user.is_superuser or user.is_staff %}
+      <a class="btn btn-danger" href={% url 'add_section' %} role="button">
+        <i class="fas fa-plus-square"></i>
+      </a>
+    {% endif %}
   {% endif %}
     <a href="/account/logout">Logout</a>
     <a href="/account/login">Login</a>
@@ -87,7 +95,7 @@
     {% endif %}
   {% endif %}
   {% if request.session.edit_mode %}
-    <a>asdasdasdasd</a>
+    <a>EditModeTest</a>
   {% endif %}
 </nav>
 <div>

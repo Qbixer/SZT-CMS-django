@@ -17,9 +17,9 @@
       </p>
     {% endfor %}
     {% if edit %}
-      <button type="submit">Edit</button>
+      <input type="submit" name="edit_section" value="Edit"/>
     {% else %}
-      <button type="submit">Add</button>
+      <input type="submit" name="add_section" value="Add"/>
     {% endif %}
   </form>
 {% endblock %}
