@@ -26,7 +26,7 @@
     {% if not section.hidden and not section.deleted or section.hidden and user.profile.moderator and not section.deleted or section.hidden and user.is_superuser and not section.deleted or section.hidden and user.is_staff and not section.deleted %}
     <div class="btn-group">
       {% if section.should_display and section.url is not null and section.url|length > 0 %}
-      <a class="btn btn-danger" href={{section.url}} role="button">
+      <a class="btn btn-danger" href={% url 'section' section_url=section.url %} role="button">
         {{section.title}}
       </a>
       {% else %}
@@ -52,7 +52,7 @@
               <i class="fas fa-edit"></i>
             </span>
             {% else %}
-            <a class="dropdown-item" href={{subsection.url}}>{{subsection.title}}</a>
+              <a class="dropdown-item" href={{subsection.url}}>{{subsection.title}}</a>
             {% endif %}
           {% endif %}
         {% endfor %}
@@ -71,8 +71,24 @@
       <i class="fas fa-plus-square"></i>
     </a>
   {% endif %}
-  <a href="/account/logout">Logout</a>
-  <a href="/account/login">Login</a>
+    <a href="/account/logout">Logout</a>
+    <a href="/account/login">Login</a>
+  {% if user.profile.moderator or user.is_superuser or user.is_staff %}
+    {% if request.session.edit_mode %}
+      <form method='post'>
+        {% csrf_token %}
+        <input type="submit" name="normal_mode" value="Normal mode"/>
+      </form>
+    {% else %}
+      <form method='post'>
+        {% csrf_token %}
+        <input type="submit" name="edit_mode" value="Edit mode"/>
+      </form>
+    {% endif %}
+  {% endif %}
+  {% if request.session.edit_mode %}
+    <a>asdasdasdasd</a>
+  {% endif %}
 </nav>
 <div>
   {% block content %}{% endblock %}

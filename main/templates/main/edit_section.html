@@ -16,6 +16,10 @@
         {% endfor %}
       </p>
     {% endfor %}
-    <button type="submit">Sign up</button>
+    {% if edit %}
+      <button type="submit">Edit</button>
+    {% else %}
+      <button type="submit">Add</button>
+    {% endif %}
   </form>
 {% endblock %}

@@ -1,6 +1,11 @@
-from main.models import Section,Subsection
+from main.models import Section
 
 def sections_processor(request):
-    sections = Section.objects.all().order_by('order_number', 'id') #order by
-    subsections = Subsection.objects.all().order_by('order_number', 'id') #order by
+    if request.method == 'POST':
+        if request.POST.get('edit_mode'):
+            request.session['edit_mode'] = True
+        elif request.POST.get('normal_mode'):
+            request.session['edit_mode'] = False
+    sections = Section.objects.filter(parent__isnull=True).order_by('order_number', 'id') #order by
+    subsections = Section.objects.filter(parent__isnull=False).order_by('order_number', 'id') #order by
     return {'sections': sections,'subsections':subsections}

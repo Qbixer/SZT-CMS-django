@@ -1,17 +1,17 @@
 from django.shortcuts import render, redirect
 from django.template import Template, Context
 from django.http import HttpResponse
-from main.models import Section,Subsection
+from main.models import Section
 from main.forms import SectionForm
 # Create your views here.
 def index(request):
     return render(request, 'main/index.html')
 
-def category_view(request, slug):
-    html = Custom_HTML.objects.get(url=slug)
-    t = Template(("{% extends 'main/index.html' %} {% block content %}"+html.html+"{% endblock %}"))
-    text = t.render(Context({}))
-    return HttpResponse(text)
+def category_view(request, section_url):
+    html = Section.objects.get(url=section_url)
+    return render(request, 'main/custom_page.html', {
+        'title':"Edit section",
+    })
 
 def add_section(request):
     current_user = request.user
@@ -20,13 +20,17 @@ def add_section(request):
     if request.method == 'POST':
         form = SectionForm(request.POST)
         if form.is_valid():
-            form.save()
+            section = form.save(commit=False)
+            section.parent = None
+            section.save()
             return redirect('main_index')
     else:
         form = SectionForm()
     return render(request, 'main/edit_section.html', {
         'form':form,
-        'title':"Add section"
+        'title':"Add section",
+        'edit':False
+
     })
 
 def edit_section(request,section_id):
@@ -43,4 +47,5 @@ def edit_section(request,section_id):
     return render(request, 'main/edit_section.html', {
         'form':form,
         'title':"Edit section",
+        'edit':True
     })
