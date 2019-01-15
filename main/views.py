@@ -1,16 +1,20 @@
 from django.shortcuts import render, redirect
 from django.template import Template, Context
 from django.http import HttpResponse
-from main.models import Section
-from main.forms import SectionForm
+from main.models import Section,PageLayout
+from main.forms import SectionForm,PageLayoutForm
 # Create your views here.
 def index(request):
     return render(request, 'main/index.html')
 
 def section_view(request, section_url):
-    html = Section.objects.filter(url=section_url).first()
+    section = Section.objects.filter(url=section_url).order_by('id').first()
+    pageLayouts = PageLayout.objects.filter(section=section).order_by('order_number','id')
+    
+    pageLayoutForm = PageLayoutForm
     return render(request, 'main/custom_page.html', {
-        'title':html.title,
+        'title':section.title,
+        'pageLayoutForm':pageLayoutForm
     })
 
 def subsection_view(request, section_url, subsection_url):

@@ -1,7 +1,28 @@
 {% extends 'main/index.html' %} 
 {% block content %}
 <div>
-    {{title}}
+  {{title | safe}}
 
+  
+
+
+  {% if request.session.edit_mode %}
+    {% if user.profile.moderator or user.is_superuser or user.is_staff %}
+      {{ pageLayoutForm.media }}
+      {% for field in pageLayoutForm %}
+        <p>
+          {{ field.label_tag }}<br>
+          {{ field }}
+          {% if field.help_text %}
+            <small style="color: grey">{{ field.help_text }}</small>
+          {% endif %}
+          {% for error in field.errors %}
+            <p style="color: red">{{ error }}</p>
+          {% endfor %}
+        </p>
+    {% endfor %}
+    <input type="submit" name="add_page_layout" value="Add"/>
+    {% endif %}
+  {% endif %}
 </div>
 {% endblock %}

@@ -1,5 +1,7 @@
 from django.db import models
 from django.core.validators import RegexValidator
+from ckeditor_uploader.fields import RichTextUploadingField
+
 # Create your models here.
 
 class ContentType(models.Model):
@@ -17,20 +19,23 @@ class Section(models.Model):
     order_number = models.IntegerField(default = 0, help_text="Smaller number => More to the left. Sections sort ascending.", blank=False)
     restricted = models.BooleanField(default=False, help_text="Should page restricted for logged people.", blank=False)
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
+
     def __str__(self):
         return self.title
 
 class PageLayout(models.Model):
     section = models.ForeignKey(Section, on_delete=models.CASCADE)
-    content_type = models.ForeignKey(ContentType, null=True, blank=True, on_delete=models.SET_NULL)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     order_number = models.IntegerField(default=0)
-    title = models.CharField()
+    title = models.CharField(max_length=200, null=True, blank=True)
 
-class CustomHTMl(models.Model):
-    page_layout = models.ForeignKey(PageLayout, on_delete=models.CASCADE)
-    text = models.TextField()
+class Post(models.Model):
+    parent = models.ForeignKey(PageLayout, on_delete=models.CASCADE)
+    body = RichTextUploadingField()
+    title = models.CharField(max_length=200)
+    def __str__(self):
+        return self.title
 
-class Posts(models.Model):
-    text = models.TextField()
-    title = models.CharField()
-
+class CustomHTML(models.Model):
+    parent = models.ForeignKey(PageLayout, on_delete=models.CASCADE)
+    body = RichTextUploadingField()

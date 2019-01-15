@@ -4,6 +4,7 @@
   <h2>{{title}}</h2>
   <form method="post">
     {% csrf_token %}
+    {{ form.media }}
     {% for field in form %}
       <p>
         {{ field.label_tag }}<br>
