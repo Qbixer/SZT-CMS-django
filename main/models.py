@@ -25,7 +25,7 @@ class Section(models.Model):
 
 class PageLayout(models.Model):
     section = models.ForeignKey(Section, on_delete=models.CASCADE)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, default=1)
     order_number = models.IntegerField(default=0)
     title = models.CharField(max_length=200, null=True, blank=True)
 

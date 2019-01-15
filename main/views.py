@@ -9,6 +9,13 @@ def index(request):
 
 def section_view(request, section_url):
     section = Section.objects.filter(url=section_url).order_by('id').first()
+    if request.method == 'POST':
+        if request.POST.get('add_page_layout'): 
+            form = PageLayoutForm(request.POST)
+            if form.is_valid():
+                page_layout = form.save(commit=False)
+                page_layout.section = section
+                page_layout.save()
     pageLayouts = PageLayout.objects.filter(section=section).order_by('order_number','id')
     for pageLayout in pageLayouts:
         if pageLayout.content_type.name == 'post':

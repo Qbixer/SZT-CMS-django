@@ -19,24 +19,29 @@
         {{ post.body | safe }}
         <div id="post{{post.id}}" style="display: none">hidden stuff</div>
       {% endfor %}
+      
     {% endif %}
   {% endfor %}
+
   {% if request.session.edit_mode %}
     {% if user.profile.moderator or user.is_superuser or user.is_staff %}
-      {{ pageLayoutForm.media }}
-      {% for field in pageLayoutForm %}
-        <p>
-          {{ field.label_tag }}<br>
-          {{ field }}
-          {% if field.help_text %}
-            <small style="color: grey">{{ field.help_text }}</small>
-          {% endif %}
-          {% for error in field.errors %}
-            <p style="color: red">{{ error }}</p>
-          {% endfor %}
-        </p>
-    {% endfor %}
-    <input type="submit" name="add_page_layout" value="Add"/>
+      <form method="post">
+        {% csrf_token %}
+        {{ pageLayoutForm.media }}
+        {% for field in pageLayoutForm %}
+          <p>
+            {{ field.label_tag }}<br>
+            {{ field }}
+            {% if field.help_text %}
+              <small style="color: grey">{{ field.help_text }}</small>
+            {% endif %}
+            {% for error in field.errors %}
+              <p style="color: red">{{ error }}</p>
+            {% endfor %}
+          </p>
+        {% endfor %}
+        <input type="submit" name="add_page_layout" value="Add widget"/>
+      </form>
     {% endif %}
   {% endif %}
 </div>
