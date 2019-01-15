@@ -31,6 +31,8 @@ def add_section(request):
                 section.parent = None
                 section.save()
                 return redirect('main_index')
+        else:
+            form = SectionForm()
     else:
         form = SectionForm()
     return render(request, 'main/edit_section.html', {
@@ -51,7 +53,10 @@ def edit_section(request,section_id):
             if form.is_valid():
                 form.save()
                 return redirect('main_index')
-    form = SectionForm(instance=section)
+        else:
+            form = SectionForm(instance=section)
+    else:
+        form = SectionForm(instance=section)
     return render(request, 'main/edit_section.html', {
         'form':form,
         'title':"Edit section",
@@ -71,6 +76,8 @@ def add_subsection(request,section_id):
                 subsection.parent = section
                 subsection.save()
                 return redirect('main_index')
+        else:
+            form = SectionForm()
     else:
         form = SectionForm()
     return render(request, 'main/edit_section.html', {
@@ -91,7 +98,10 @@ def edit_subsection(request,subsection_id):
             if form.is_valid():
                 form.save()
                 return redirect('main_index')
-    form = SectionForm(instance=subsection)
+        else:
+            form = SectionForm(instance=subsection)
+    else:
+        form = SectionForm(instance=subsection)
     return render(request, 'main/edit_section.html', {
         'form':form,
         'title':"Edit subsection",

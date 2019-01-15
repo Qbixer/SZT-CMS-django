@@ -16,16 +16,21 @@ class Section(models.Model):
     deleted = models.BooleanField(default=False, help_text="Should page be marked as deleted. Possible to undo in admin panel.", blank=False)
     order_number = models.IntegerField(default = 0, help_text="Smaller number => More to the left. Sections sort ascending.", blank=False)
     restricted = models.BooleanField(default=False, help_text="Should page restricted for logged people.", blank=False)
-    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
     def __str__(self):
         return self.title
 
 class PageLayout(models.Model):
     section = models.ForeignKey(Section, on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType, null=True, blank=True, on_delete=models.SET_NULL)
+    order_number = models.IntegerField(default=0)
+    title = models.CharField()
 
+class CustomHTMl(models.Model):
+    page_layout = models.ForeignKey(PageLayout, on_delete=models.CASCADE)
+    text = models.TextField()
 
-
-class Custom_HTML(models.Model):
-    url = models.CharField(max_length=255, unique=True)
-    html = models.CharField(max_length=10000)
+class Posts(models.Model):
+    text = models.TextField()
+    title = models.CharField()
 
