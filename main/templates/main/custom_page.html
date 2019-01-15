@@ -1,11 +1,26 @@
 {% extends 'main/index.html' %} 
 {% block content %}
+{% load main_filters %}
+<script>
+    function showPost(id) {
+      var div = document.getElementById(id);
+      if(div.style.display == 'none')
+        div.style.display = 'inline'
+      else
+        div.style.display = 'none'
+    }
+    </script>
 <div>
   {{title | safe}}
-
-  
-
-
+  {% for widget in pageLayouts %}
+    {% if widget.content_type.name == 'post' %}
+      {% for post in widget.posts %}
+        <button onclick="showPost('post{{post.id}}')">button</button>
+        {{ post.body | safe }}
+        <div id="post{{post.id}}" style="display: none">hidden stuff</div>
+      {% endfor %}
+    {% endif %}
+  {% endfor %}
   {% if request.session.edit_mode %}
     {% if user.profile.moderator or user.is_superuser or user.is_staff %}
       {{ pageLayoutForm.media }}
