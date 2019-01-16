@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import RegexValidator
 from ckeditor_uploader.fields import RichTextUploadingField
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -31,10 +32,19 @@ class PageLayout(models.Model):
 
 class Post(models.Model):
     parent = models.ForeignKey(PageLayout, on_delete=models.CASCADE)
-    title = models.CharField(max_length=200)
+    title = models.CharField(max_length=200, null=True, blank=True)
+    edited = models.BooleanField(default=False)
+    last_modification = models.DateTimeField(auto_now=True)
     body = RichTextUploadingField()
     def __str__(self):
         return self.title
+
+class PostComment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+    edited = models.BooleanField(default=False)
+    last_modification = models.DateTimeField(auto_now=True)
+    body = models.CharField(max_length=200)
 
 class CustomHTML(models.Model):
     parent = models.ForeignKey(PageLayout, on_delete=models.CASCADE)

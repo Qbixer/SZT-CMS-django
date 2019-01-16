@@ -9,44 +9,89 @@
     function toggleStuff(id) {
       var div = document.getElementById(id);
       if(div.style.display == 'none')
-        div.style.display = 'inline'
+        div.style.display = 'block'
       else
         div.style.display = 'none'
     }
     </script>
-<div>
+<div class="container">
   {% if request.session.edit_mode and user.profile.moderator or request.session.edit_mode and user.is_superuser or request.session.edit_mode and user.is_staff %}
-    {{title | safe}}
     {% for widget in pageLayouts %}
       <div>
-        {{widget.title}}
+        {% if widget.title|length > 0 %}
+          <h1>
+            {{widget.title}}
+          </h1>
+          <hr/>
+        {% endif %}
         {% if widget.content_type.name == 'post' %}
-          {% for post in widget.posts %}
-            <button onclick="toggleStuff('post{{post.id}}')">button</button>
-            {{ post.body | safe }}
-            <div id="post{{post.id}}" style="display: none">hidden stuff</div>
-          {% endfor %}
-          <button onclick="toggleStuff('add_post{{widget.id}}')"><i class="fas fa-plus-square"></i></button>
-          <form id="add_post{{widget.id}}" style="display: none" method="post">
-            {% csrf_token %}
-            {% for field in widget.addPostForm %}
-              <p>
-                {{ field.label_tag }}<br>
-                {{ field }}
-                {% if field.help_text %}
-                  <small style="color: grey">{{ field.help_text }}</small>
+          <div class="pl-4">
+            {% for post in widget.posts %}
+              <div id='post_{{post.id}}'>
+                {% if post.title|length > 0 %}
+                  <h2 class="mt-2">
+                    {{post.title}}
+                  </h2>
                 {% endif %}
-                {% for error in field.errors %}
-                  <p style="color: red">{{ error }}</p>
-                {% endfor %}
-              </p>
+                {{ post.body | safe }}
+                <button class="btn btn-primary" onclick="toggleStuff('edit_post{{post.id}}');toggleStuff('post_{{post.id}}')">
+                  <i class="fas fa-edit"></i>
+                </button>
+              </div>
+              <div id="edit_post{{post.id}}" style="display: none">
+                <form method="post">
+                  {% csrf_token %}
+                  {% for field in post.editForm %}
+                    <p>
+                      {{ field.label_tag }}<br>
+                      {{ field }}
+                      {% if field.help_text %}
+                        <small style="color: grey">{{ field.help_text }}</small>
+                      {% endif %}
+                      {% for error in field.errors %}
+                        <p style="color: red">{{ error }}</p>
+                      {% endfor %}
+                    </p>
+                  {% endfor %}
+                  <input type="hidden" name="post_id" value="{{post.id}}"/>
+                  <span>
+                    <input class="btn btn-primary" type="submit" name="edit_post" value="Edit post"/>
+                    <input class="btn btn-danger  " type="submit" name="delete_post" value="Delete post"/>
+                    <div class="btn btn-secondary" onclick="toggleStuff('post_{{post.id}}');toggleStuff('edit_post{{post.id}}')">
+                      <i class="fas fa-times"></i>
+                    </div>
+                  </span>
+                </form>
+              </div>
+              {% if not forloop.last %}
+                <hr/>           
+              {% endif %}
             {% endfor %}
-            <input type="submit" name="add_post" value="Add post"/>
-          </form>
+            <button id='button_add_post{{widget.id}}' onclick="toggleStuff('add_post{{widget.id}}');toggleStuff('button_add_post{{widget.id}}')"><i class="fas fa-plus-square"></i></button>
+            <div id="add_post{{widget.id}}" style="display: none">
+              <form method="post">
+                {% csrf_token %}
+                {% for field in widget.addPostForm %}
+                  <p>
+                    {{ field.label_tag }}<br>
+                    {{ field }}
+                    {% if field.help_text %}
+                      <small style="color: grey">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% for error in field.errors %}
+                      <p style="color: red">{{ error }}</p>
+                    {% endfor %}
+                  </p>
+                {% endfor %}
+                <input type="hidden" name="page_layout_id" value="{{widget.id}}"/>
+                <input type="submit" name="add_post" value="Add post"/>
+              </form>
+              <button onclick="toggleStuff('add_post{{widget.id}}');toggleStuff('button_add_post{{widget.id}}')"><i class="fas fa-times"></i></button>
+            </div>
+          </div>
         {% endif %}
       </div>
     {% endfor %}
-    <hr/>                  
     <button onclick="toggleStuff('add_page_layout')"><i class="fas fa-plus-square"></i></button>
     <form id="add_page_layout" style="display: none" method="post">
       {% csrf_token %}
