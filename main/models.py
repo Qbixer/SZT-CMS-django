@@ -31,8 +31,8 @@ class PageLayout(models.Model):
 
 class Post(models.Model):
     parent = models.ForeignKey(PageLayout, on_delete=models.CASCADE)
-    body = RichTextUploadingField()
     title = models.CharField(max_length=200)
+    body = RichTextUploadingField()
     def __str__(self):
         return self.title
 

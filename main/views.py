@@ -21,12 +21,11 @@ def section_view(request, section_url):
         if pageLayout.content_type.name == 'post':
             posts = Post.objects.filter(parent=pageLayout).order_by('id')
             for post in posts:
-                editForm = PostForm(instance = post)
+                editForm = PostForm(instance = post,auto_id=str(post.id)+'_post_id_for_%s')
                 post.editForm = editForm
                 post.edit = False
             pageLayout.posts = posts            
-            pageLayout.addPostForm = PostForm()
-            pageLayout.addPostFormHidden = True
+            pageLayout.addPostForm = PostForm(auto_id=str(pageLayout.id)+'_add_post_%s')
     pageLayoutForm = PageLayoutForm
     return render(request, 'main/custom_page.html', {
         'title':section.title,
