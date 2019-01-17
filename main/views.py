@@ -2,14 +2,15 @@ from django.shortcuts import render, redirect
 from django.template import Template, Context
 from django.http import HttpResponse
 from main.models import Section,PageLayout,Post,PostComment
-from main.forms import SectionForm,PageLayoutForm,PostForm,PostCommentForm
+from main.forms import *
 # Create your views here.
 def index(request):
     return render(request, 'main/index.html')
 
 def section_view(request, section_url):
+    current_user = request.user
     section = Section.objects.filter(url=section_url).order_by('id').first()
-    if request.method == 'POST':
+    if not (current_user.is_anonymous or not (current_user.is_superuser or current_user.is_staff or current_user.profile.moderator)) and request.method == 'POST':
         if request.POST.get('add_page_layout'): 
             form = PageLayoutForm(request.POST)
             if form.is_valid():
@@ -33,7 +34,15 @@ def section_view(request, section_url):
                     post.edited = True
                     post.save()
         if request.POST.get('delete_post'):
-            Post.objects.get(id=request.POST.get('post_id')).delete()            
+            Post.objects.get(id=request.POST.get('post_id')).delete()    
+        if request.POST.get('edit_page_layout'):
+            page_layout = PageLayout.objects.get(id=request.POST.get('page_layout_id'))
+            if page_layout != None:
+                form = PageLayoutEditForm(request.POST,instance=page_layout)
+                if form.is_valid():
+                    form.save()
+        if request.POST.get('delete_page_layout'):
+            PageLayout.objects.get(id=request.POST.get('page_layout_id')).delete()        
     pageLayouts = PageLayout.objects.filter(section=section).order_by('order_number','id')
     for pageLayout in pageLayouts:
         if pageLayout.content_type.name == 'post':
@@ -48,10 +57,11 @@ def section_view(request, section_url):
                 post.addCommentForm = PostCommentForm(auto_id=str(post.id)+'_add_comment_%s')
             pageLayout.posts = posts            
             pageLayout.addPostForm = PostForm(auto_id=str(pageLayout.id)+'_add_post_%s')
+        pageLayout.editForm = PageLayoutEditForm(instance=pageLayout,auto_id=str(pageLayout.id)+'_edit_page_layout_%s')
+    pageLayouts.addForm = PageLayoutForm()
     pageLayoutForm = PageLayoutForm
     return render(request, 'main/custom_page.html', {
         'section':section,
-        'pageLayoutForm':pageLayoutForm,
         'pageLayouts':pageLayouts
     })
 

@@ -145,7 +145,9 @@ CKEDITOR_CONFIGS = {
              'uploadimage',
              'uploadwidget',
              'widget',
-             'dialog', ]),
+             'dialog',
+             'youtube',
+             'filebrowser']),
         'allowedContent': True,
 
     },

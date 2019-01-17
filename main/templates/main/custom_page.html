@@ -13,19 +13,53 @@
       else
         div.style.display = 'none'
     }
-    </script>
-<div class="container">
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip()
+    })
+</script>
+<div  class="p-4" style='background:{{section.background_color}}'>
   {% if request.session.edit_mode and user.profile.moderator or request.session.edit_mode and user.is_superuser or request.session.edit_mode and user.is_staff %}
     {% for widget in pageLayouts %}
       <div>
-        {% if widget.title|length > 0 %}
-          <h1>
-            {{widget.title}}
-          </h1>
-          <hr/>
-        {% endif %}
+        <div id='page_layout{{widget.id}}'>      
+          {% if widget.title|length > 0 %}
+            <h1>
+              {{widget.title}}
+            </h1>
+          {% endif %}
+          <button class="btn btn-primary" onclick="toggleStuff('edit_page_layout{{widget.id}}');toggleStuff('page_layout{{widget.id}}')" data-toggle="tooltip" title="Edit widget" data-placement="right">
+              <i class="fas fa-edit"></i>
+          </button>
+        </div>
+        <div id="edit_page_layout{{widget.id}}" style="display: none">
+            <form method="post">
+              {% csrf_token %}
+              {% for field in widget.editForm %}
+                <div class="form-group">
+                  {{ field.label_tag }}
+                  <br/>
+                  {{ field }}
+                  {% if field.help_text %}
+                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                  {% endif %}
+                  {% for error in field.errors %}
+                    <p style="color: red">{{ error }}</p>
+                  {% endfor %}
+                </div>
+              {% endfor %}
+              <input type="hidden" name="page_layout_id" value="{{widget.id}}"/>
+              <span>
+                <input class="btn btn-primary" type="submit" name="edit_page_layout" value="Save changes" />
+                <input class="btn btn-danger  " type="submit" name="delete_page_layout" value="Delete widget"/>
+                <div class="btn btn-secondary" onclick="toggleStuff('page_layout{{widget.id}}');toggleStuff('edit_page_layout{{widget.id}}');" data-toggle="tooltip" title="Cancel" data-placement="top">
+                  <i class="fas fa-times"></i>
+                </div>
+              </span>
+            </form>
+          </div>
+        <hr/>
         {% if widget.content_type.name == 'post' %}
-          <div class="pl-4">
+          <div class="pl-4 pr-4">
             {% for post in widget.posts %}
               <div id='post_{{post.id}}'>
                 {% if post.title|length > 0 %}
@@ -34,7 +68,7 @@
                   </h2>
                 {% endif %}
                 {{ post.body | safe }}
-                <button class="btn btn-primary" onclick="toggleStuff('edit_post{{post.id}}');toggleStuff('post_{{post.id}}')">
+                <button class="btn btn-primary" onclick="toggleStuff('edit_post{{post.id}}');toggleStuff('post_{{post.id}}')" data-toggle="tooltip" title="Edit post" data-placement="right">
                   <i class="fas fa-edit"></i>
                 </button>
               </div>
@@ -42,32 +76,33 @@
                 <form method="post">
                   {% csrf_token %}
                   {% for field in post.editForm %}
-                    <p>
-                      {{ field.label_tag }}<br>
+                    <div class="form-group">
+                      {{ field.label_tag }}
+                      <br/>
                       {{ field }}
                       {% if field.help_text %}
-                        <small style="color: grey">{{ field.help_text }}</small>
+                        <small class="form-text text-muted">{{ field.help_text }}</small>
                       {% endif %}
                       {% for error in field.errors %}
                         <p style="color: red">{{ error }}</p>
                       {% endfor %}
-                    </p>
+                    </div>
                   {% endfor %}
                   <input type="hidden" name="post_id" value="{{post.id}}"/>
                   <span>
-                    <input class="btn btn-primary" type="submit" name="edit_post" value="Edit post"/>
+                    <input class="btn btn-primary" type="submit" name="edit_post" value="Save changes" />
                     <input class="btn btn-danger  " type="submit" name="delete_post" value="Delete post"/>
-                    <div class="btn btn-secondary" onclick="toggleStuff('post_{{post.id}}');toggleStuff('edit_post{{post.id}}')">
+                    <div class="btn btn-secondary" onclick="toggleStuff('post_{{post.id}}');toggleStuff('edit_post{{post.id}}')" data-toggle="tooltip" title="Cancel" data-placement="top">
                       <i class="fas fa-times"></i>
                     </div>
                   </span>
                 </form>
               </div>
-              {% if not forloop.last %}
-                <hr/>           
-              {% endif %}
+              <hr/>              
             {% endfor %}
-            <button id='button_add_post{{widget.id}}' onclick="toggleStuff('add_post{{widget.id}}');toggleStuff('button_add_post{{widget.id}}')"><i class="fas fa-plus-square"></i></button>
+            <button class="btn btn-primary" id='button_add_post{{widget.id}}' onclick="toggleStuff('add_post{{widget.id}}');toggleStuff('button_add_post{{widget.id}}')" data-toggle="tooltip" title="Add post" data-placement="right">
+              <i class="fas fa-plus-square"></i>
+            </button>
             <div id="add_post{{widget.id}}" style="display: none">
               <form method="post">
                 {% csrf_token %}
@@ -84,19 +119,27 @@
                   </p>
                 {% endfor %}
                 <input type="hidden" name="page_layout_id" value="{{widget.id}}"/>
-                <input type="submit" name="add_post" value="Add post"/>
+                <input class="btn btn-primary" type="submit" name="add_post" value="Add post"/>
+                <div class="btn btn-secondary" onclick="toggleStuff('add_post{{widget.id}}');toggleStuff('button_add_post{{widget.id}}')" data-toggle="tooltip" title="Cancel" data-placement="top">
+                  <i class="fas fa-times"></i>
+                </div>
               </form>
-              <button onclick="toggleStuff('add_post{{widget.id}}');toggleStuff('button_add_post{{widget.id}}')"><i class="fas fa-times"></i></button>
             </div>
           </div>
         {% endif %}
       </div>
+      {% if not forloop.last %}
+        <hr/>           
+      {% endif %}
     {% endfor %}
-    <button onclick="toggleStuff('add_page_layout')"><i class="fas fa-plus-square"></i></button>
+    <hr/>
+    <button id="button_add_page_layout" class="btn btn-primary" onclick="toggleStuff('add_page_layout');toggleStuff('button_add_page_layout')" data-toggle="tooltip" title="Add widget" data-placement="right">
+      <i class="fas fa-plus-square"></i>
+    </button>
     <form id="add_page_layout" style="display: none" method="post">
       {% csrf_token %}
-      {{ pageLayoutForm.media }}
-      {% for field in pageLayoutForm %}
+      {{ pageLayouts.addForm.media }}
+      {% for field in pageLayouts.addForm %}
         <p>
           {{ field.label_tag }}<br>
           {{ field }}
@@ -108,18 +151,46 @@
           {% endfor %}
         </p>
       {% endfor %}
-      <input type="submit" name="add_page_layout" value="Add widget"/>
+      <span>
+        <input class="btn btn-primary" type="submit" name="add_page_layout" value="Add widget"/>
+        <div class="btn btn-secondary" onclick="toggleStuff('button_add_page_layout');toggleStuff('add_page_layout');" data-toggle="tooltip" title="Cancel" data-placement="top">
+          <i class="fas fa-times"></i>
+        </div>
+      </span>
     </form>
   {% else %}
-    {{title | safe}}
     {% for widget in pageLayouts %}
-      {{widget.title}}
-      {% if widget.content_type.name == 'post' %}
-        {% for post in widget.posts %}
-          {{ post.body | safe }}
-        {% endfor %}        
+      <div>
+        <div id='page_layout{{widget.id}}'>      
+          {% if widget.title|length > 0 %}
+            <h1>
+              {{widget.title}}
+            </h1>
+          {% endif %}
+        </div>
+        <hr/>
+        {% if widget.content_type.name == 'post' %}
+          <div class="pl-4 pr-4">
+            {% for post in widget.posts %}
+              <div id='post_{{post.id}}'>
+                {% if post.title|length > 0 %}
+                  <h2 class="mt-2">
+                    {{post.title}}
+                  </h2>
+                {% endif %}
+                {{ post.body | safe }}
+              </div>
+              {% if not forloop.last %}
+                <hr/>           
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+      {% if not forloop.last %}
+        <hr/>           
       {% endif %}
-    {% endfor %}
+    {% endfor %}    
   {% endif %}
 </div>
 {% endblock %}
