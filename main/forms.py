@@ -41,4 +41,7 @@ class PostForm(ModelForm):
 class PostCommentForm(ModelForm):
     class Meta:
         model = PostComment
-        exclude = ['post','user','edited','last_modification']
+        fields = ('body',)
+        widgets = {
+            'body': forms.Textarea(attrs={'class':"form-control", 'rows':"3", 'maxlength':"1000"})
+        }

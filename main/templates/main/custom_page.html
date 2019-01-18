@@ -1,15 +1,24 @@
 {% extends 'main/index.html' %} 
 {% block content %}
 {% load static %}
-<script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
-<script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
-<script type="text/javascript" src="{% static 'ckeditor/ckeditor/adapters/jquery.js' %}"></script>
+{% if request.session.edit_mode and user.profile.moderator or request.session.edit_mode and user.is_superuser or request.session.edit_mode and user.is_staff %}
+  <script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+  <script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+  <script type="text/javascript" src="{% static 'ckeditor/ckeditor/adapters/jquery.js' %}"></script>
+{% endif %}
 
 <script>
     function toggleStuff(id) {
       var div = document.getElementById(id);
       if(div.style.display == 'none')
         div.style.display = 'block'
+      else
+        div.style.display = 'none'
+    }
+    function toggleStuffInline(id) {
+      var div = document.getElementById(id);
+      if(div.style.display == 'none')
+        div.style.display = 'inline'
       else
         div.style.display = 'none'
     }
@@ -98,6 +107,78 @@
                   </span>
                 </form>
               </div>
+              <hr/>
+              <div class="card mb-4">
+                  <div class="card-header">
+                      Comments
+                      <button id="show_comments{{post.id}}" class="btn btn-light" onclick="toggleStuff('comments{{post.id}}');toggleStuffInline('hide_comments{{post.id}}');toggleStuffInline('show_comments{{post.id}}');" data-toggle="tooltip" title="Show comments" data-placement="bottom">
+                          <i class="fas fa-angle-down"></i>
+                      </button>
+                      <button id="hide_comments{{post.id}}" style="display: none" class="btn btn-light" onclick="toggleStuff('comments{{post.id}}');toggleStuffInline('show_comments{{post.id}}');toggleStuffInline('hide_comments{{post.id}}');" data-toggle="tooltip" title="Hide comments" data-placement="bottom">
+                          <i class="fas fa-angle-up"></i>
+                      </button>
+                  </div>
+                  <div style="display: none" id="comments{{post.id}}">
+                    <ul class="list-group list-group-flush">
+                      {% for comment in post.comments %}
+                        <li class="list-group-item pl-5">
+                          <div id="comment{{comment.id}}">
+                            <div class="d-flex">
+                              <h5 class="mt-0">{{comment.user}}</h5>
+                              {% if not request.user.is_anonymous and comment.user == request.user %}
+                              <div class="ml-auto mt-0">
+                                <button class="btn btn-primary" onclick="toggleStuff('comment{{comment.id}}');toggleStuff('edit_comment{{comment.id}}');" data-toggle="tooltip" title="Edit comment" data-placement="left">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                              </div>
+                              {% endif %}
+                            </div>
+                            {{comment.body}}
+                          </div>
+                          <div id="edit_comment{{comment.id}}" style="display: none" class="card-body">
+                            <form method="post">
+                              {% csrf_token %}
+                              {% for field in comment.editForm %}
+                                <div class="form-group">
+                                  {{ field }}
+                                  {% if field.help_text %}
+                                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                                  {% endif %}
+                                </div>
+                              {% endfor %}
+                              <input type="hidden" name="comment_id" value="{{comment.id}}"/>
+                              <span>
+                                <input class="btn btn-primary" type="submit" name="edit_comment" value="Edit comment"/>
+                                <input class="btn btn-danger" type="submit" name="delete_comment" value="Delete comment"/>
+                                <div class="btn btn-secondary" onclick="toggleStuff('edit_comment{{comment.id}}');toggleStuff('comment{{comment.id}}');" data-toggle="tooltip" title="Cancel" data-placement="top">
+                                  <i class="fas fa-times"></i>
+                                </div>
+                              </span>
+                            </form>
+                          </div>
+                        </li>
+                      {% endfor %}  
+                    </ul>
+                    {% if not request.user.is_anonymous %}
+                      <h5 class="card-header">Leave a Comment:</h5>
+                      <div class="card-body">
+                        <form id="add_comment{{post.id}}" method="post">
+                          {% csrf_token %}
+                          {% for field in post.addCommentForm %}
+                            <div class="form-group">
+                              {{ field }}
+                              {% if field.help_text %}
+                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                              {% endif %}
+                            </div>
+                          {% endfor %}
+                          <input type="hidden" name="post_id" value="{{post.id}}"/>
+                          <input class="btn btn-primary" type="submit" name="add_comment" value="Add comment"/>
+                        </form>
+                      </div>
+                    {% endif %}
+                  </div>
+                </div> 
               <hr/>              
             {% endfor %}
             <button class="btn btn-primary" id='button_add_post{{widget.id}}' onclick="toggleStuff('add_post{{widget.id}}');toggleStuff('button_add_post{{widget.id}}')" data-toggle="tooltip" title="Add post" data-placement="right">
@@ -138,7 +219,6 @@
     </button>
     <form id="add_page_layout" style="display: none" method="post">
       {% csrf_token %}
-      {{ pageLayouts.addForm.media }}
       {% for field in pageLayouts.addForm %}
         <p>
           {{ field.label_tag }}<br>
@@ -166,9 +246,9 @@
             <h1>
               {{widget.title}}
             </h1>
+            <hr/>
           {% endif %}
         </div>
-        <hr/>
         {% if widget.content_type.name == 'post' %}
           <div class="pl-4 pr-4">
             {% for post in widget.posts %}
@@ -179,11 +259,82 @@
                   </h2>
                 {% endif %}
                 {{ post.body | safe }}
-              </div>
+              </div>              
+              <div class="card mb-4">
+                <div class="card-header">
+                    Comments
+                    <button id="show_comments{{post.id}}" class="btn btn-light" onclick="toggleStuff('comments{{post.id}}');toggleStuffInline('hide_comments{{post.id}}');toggleStuffInline('show_comments{{post.id}}');" data-toggle="tooltip" title="Show comments" data-placement="bottom">
+                        <i class="fas fa-angle-down"></i>
+                    </button>
+                    <button id="hide_comments{{post.id}}" style="display: none" class="btn btn-light" onclick="toggleStuff('comments{{post.id}}');toggleStuffInline('show_comments{{post.id}}');toggleStuffInline('hide_comments{{post.id}}');" data-toggle="tooltip" title="Hide comments" data-placement="bottom">
+                        <i class="fas fa-angle-up"></i>
+                    </button>
+                </div>
+                <div style="display: none" id="comments{{post.id}}">
+                  <ul class="list-group list-group-flush">
+                    {% for comment in post.comments %}
+                      <li class="list-group-item pl-5">
+                        <div id="comment{{comment.id}}">
+                          <div class="d-flex">
+                            <h5 class="mt-0">{{comment.user}}</h5>
+                            {% if not request.user.is_anonymous and comment.user == request.user %}
+                            <div class="ml-auto mt-0">
+                              <button class="btn btn-primary" onclick="toggleStuff('comment{{comment.id}}');toggleStuff('edit_comment{{comment.id}}');" data-toggle="tooltip" title="Edit comment" data-placement="left">
+                                  <i class="fas fa-edit"></i>
+                              </button>
+                            </div>
+                            {% endif %}
+                          </div>
+                          {{comment.body}}
+                        </div>
+                        <div id="edit_comment{{comment.id}}" style="display: none" class="card-body">
+                          <form method="post">
+                            {% csrf_token %}
+                            {% for field in comment.editForm %}
+                              <div class="form-group">
+                                {{ field }}
+                                {% if field.help_text %}
+                                  <small class="form-text text-muted">{{ field.help_text }}</small>
+                                {% endif %}
+                              </div>
+                            {% endfor %}
+                            <input type="hidden" name="comment_id" value="{{comment.id}}"/>
+                            <span>
+                              <input class="btn btn-primary" type="submit" name="edit_comment" value="Edit comment"/>
+                              <input class="btn btn-danger" type="submit" name="delete_comment" value="Delete comment"/>
+                              <div class="btn btn-secondary" onclick="toggleStuff('edit_comment{{comment.id}}');toggleStuff('comment{{comment.id}}');" data-toggle="tooltip" title="Cancel" data-placement="top">
+                                <i class="fas fa-times"></i>
+                              </div>
+                            </span>
+                          </form>
+                        </div>
+                      </li>
+                    {% endfor %}  
+                  </ul>
+                  {% if not request.user.is_anonymous %}
+                    <h5 class="card-header">Leave a Comment:</h5>
+                    <div class="card-body">
+                      <form id="add_comment{{post.id}}" method="post">
+                        {% csrf_token %}
+                        {% for field in post.addCommentForm %}
+                          <div class="form-group">
+                            {{ field }}
+                            {% if field.help_text %}
+                              <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% endif %}
+                          </div>
+                        {% endfor %}
+                        <input type="hidden" name="post_id" value="{{post.id}}"/>
+                        <input class="btn btn-primary" type="submit" name="add_comment" value="Add comment"/>
+                      </form>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>         
               {% if not forloop.last %}
                 <hr/>           
-              {% endif %}
-            {% endfor %}
+              {% endif %} 
+            {% endfor %}            
           </div>
         {% endif %}
       </div>

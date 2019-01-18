@@ -17,15 +17,15 @@ def section_view(request, section_url):
                 page_layout = form.save(commit=False)
                 page_layout.section = section
                 page_layout.save()
-        if request.POST.get('add_post'):
+        if request.POST.get('add_post') and request.POST.get('page_layout_id'):
             form = PostForm(request.POST)
             if form.is_valid():
-                page_layout = PageLayout.objects.get(pk=request.POST.get('page_layout_id'))
-                if not page_layout == None:
+                page_layout = PageLayout.objects.get(id=request.POST.get('page_layout_id'))
+                if page_layout != None:
                     post = form.save(commit=False)
                     post.parent = page_layout
                     post.save()
-        if request.POST.get('edit_post'):
+        if request.POST.get('edit_post') and request.POST.get('post_id'):
             post = Post.objects.get(id=request.POST.get('post_id'))
             if post != None:
                 form = PostForm(request.POST,instance=post)
@@ -33,28 +33,57 @@ def section_view(request, section_url):
                     post = form.save(commit=False)
                     post.edited = True
                     post.save()
-        if request.POST.get('delete_post'):
-            Post.objects.get(id=request.POST.get('post_id')).delete()    
-        if request.POST.get('edit_page_layout'):
+        if request.POST.get('delete_post') and request.POST.get('post_id'):
+            post = Post.objects.get(id=request.POST.get('post_id'))    
+            post.deleted = True
+            post.save()
+        if request.POST.get('edit_page_layout') and request.POST.get('page_layout_id'):
             page_layout = PageLayout.objects.get(id=request.POST.get('page_layout_id'))
             if page_layout != None:
                 form = PageLayoutEditForm(request.POST,instance=page_layout)
                 if form.is_valid():
                     form.save()
-        if request.POST.get('delete_page_layout'):
-            PageLayout.objects.get(id=request.POST.get('page_layout_id')).delete()        
-    pageLayouts = PageLayout.objects.filter(section=section).order_by('order_number','id')
+        if request.POST.get('delete_page_layout') and request.POST.get('page_layout_id'):
+            pageLayout = PageLayout.objects.get(id=request.POST.get('page_layout_id'))    
+            pageLayout.deleted = True
+            pageLayout.save()
+    if not current_user.is_anonymous: 
+        if request.POST.get('add_comment') and request.POST.get('post_id'):
+            form = PostCommentForm(request.POST)
+            if form.is_valid():
+                post = Post.objects.get(id=request.POST.get('post_id'))
+                if post != None:
+                    comment = form.save(commit=False)
+                    comment.post = post
+                    comment.user = current_user
+                    comment.save()
+        if request.POST.get('edit_comment') and request.POST.get('comment_id'):
+            comment = PostComment.objects.get(id=request.POST.get('comment_id'))
+            if comment != None and comment.user == current_user:
+                form = PostCommentForm(request.POST,instance=comment)
+                if form.is_valid():
+                    comm = form.save(commit=False)
+                    comm.edited = True
+                    comm.save()
+        if request.POST.get('delete_comment') and request.POST.get('comment_id'):
+            comment = PostComment.objects.get(id=request.POST.get('comment_id'))
+            if comment != None and comment.user == current_user:
+                comment.deleted = True
+                comment.save()                    
+    pageLayouts = PageLayout.objects.filter(section=section,deleted=False).order_by('order_number','id')
     for pageLayout in pageLayouts:
         if pageLayout.content_type.name == 'post':
-            posts = Post.objects.filter(parent=pageLayout).order_by('id')
+            posts = Post.objects.filter(parent=pageLayout,deleted=False).order_by('id')
             for post in posts:
-                comments = PostComment.objects.filter(post=post).order_by('id')
+                comments = PostComment.objects.filter(post=post,deleted=False).order_by('id')
                 editForm = PostForm(instance = post,auto_id=str(post.id)+'_post_id_for_%s')
                 post.editForm = editForm
                 for comment in comments:
-                    commentEditForm = PostCommentForm(instance=comment,auto_id=str(comment.id)+'_edit_comment_%s')
-                    comment.editForm = commentEditForm
+                    if current_user == comment.user:
+                        commentEditForm = PostCommentForm(instance=comment,auto_id=str(comment.id)+'_edit_comment_%s')
+                        comment.editForm = commentEditForm
                 post.addCommentForm = PostCommentForm(auto_id=str(post.id)+'_add_comment_%s')
+                post.comments = comments
             pageLayout.posts = posts            
             pageLayout.addPostForm = PostForm(auto_id=str(pageLayout.id)+'_add_post_%s')
         pageLayout.editForm = PageLayoutEditForm(instance=pageLayout,auto_id=str(pageLayout.id)+'_edit_page_layout_%s')

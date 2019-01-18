@@ -2,7 +2,7 @@ from django.db import models
 from django.core.validators import RegexValidator
 from ckeditor_uploader.fields import RichTextUploadingField
 from django.contrib.auth.models import User
-
+from django.utils import timezone
 # Create your models here.
 
 class ContentType(models.Model):
@@ -30,13 +30,17 @@ class PageLayout(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, default=1)
     title = models.CharField(max_length=200, null=True, blank=True)
     order_number = models.IntegerField(default=0)
+    deleted = models.BooleanField(default=False, blank=False)
+
 
 class Post(models.Model):
     parent = models.ForeignKey(PageLayout, on_delete=models.CASCADE)
     title = models.CharField(max_length=200, null=True, blank=True)
     edited = models.BooleanField(default=False)
     last_modification = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(default=timezone.now)
     body = RichTextUploadingField()
+    deleted = models.BooleanField(default=False, blank=False)
     def __str__(self):
         return self.title
 
@@ -45,7 +49,10 @@ class PostComment(models.Model):
     user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
     edited = models.BooleanField(default=False)
     last_modification = models.DateTimeField(auto_now=True)
-    body = models.CharField(max_length=200)
+    created = models.DateTimeField(default=timezone.now)
+    body = models.CharField(max_length=1000, help_text="Maximum 1000 characters")
+    deleted = models.BooleanField(default=False, blank=False)
+
 
 class CustomHTML(models.Model):
     parent = models.ForeignKey(PageLayout, on_delete=models.CASCADE)
