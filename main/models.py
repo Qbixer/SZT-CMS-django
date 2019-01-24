@@ -20,13 +20,21 @@ class Section(models.Model):
     order_number = models.IntegerField(default = 0, help_text="Smaller number => More to the left. Sections sort ascending.", blank=False)
     restricted = models.BooleanField(default=False, help_text="Should page restricted for logged people.", blank=False)
     background_color = models.CharField(max_length=7, unique=False, default="#FFFFFF", help_text="Background color of the section page")
-    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
-    
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)    
+    def __str__(self):
+        return self.title
+
+class HomePage(models.Model):
+    title = models.CharField(max_length=50, unique=False, help_text="Required. Maximum 50 characters.", blank=False)
+    tab_title = models.CharField(max_length=50, unique=False, null=True, help_text="Optional. Maximum 50 characters.", blank=True)
+    background_color = models.CharField(max_length=7, unique=False, default="#FFFFFF", help_text="Background color of the section page")
+    background_color_theme = models.CharField(max_length=7, unique=False, default="#FFFFFF", help_text="Background color of the whole page")
     def __str__(self):
         return self.title
 
 class PageLayout(models.Model):
-    section = models.ForeignKey(Section, on_delete=models.CASCADE)
+    home_page = models.ForeignKey(HomePage, null=True, on_delete=models.CASCADE)
+    section = models.ForeignKey(Section, null=True, on_delete=models.CASCADE)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, default=1)
     title = models.CharField(max_length=200, null=True, blank=True)
     order_number = models.IntegerField(default=0)
