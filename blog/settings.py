@@ -31,20 +31,16 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'account.apps.AccountConfig',
+    'main.apps.MainConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
-
     'ckeditor',
-    'ckeditor_uploader',
-    'sorl.thumbnail',
-    'newsletter',
-    'account.apps.AccountConfig',
-    'main.apps.MainConfig',
+    'ckeditor_uploader'
 ]
 
 MIDDLEWARE = [
@@ -166,5 +162,3 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 LOGIN_REDIRECT_URL = '/ui/'
 
 LOGIN_URL = '/account/login/'
-
-SITE_ID = 1

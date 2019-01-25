@@ -25,8 +25,6 @@ urlpatterns = [
     path('ui/',include('main.urls')),
     path('account/',include('account.urls')),
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),
-    url(r'^newsletter/', include('newsletter.urls')),
-
 ]
 
 # DEVELOPMENT ONLY
