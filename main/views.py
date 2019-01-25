@@ -97,6 +97,7 @@ def section_view(request, section_url):
     current_user = request.user
     section = Section.objects.filter(url=section_url).order_by('id').first()
     if section is None:
+        #return redirect('main_index')
         return render(request, 'main/404.html')
     if section.restricted is True and current_user.is_anonymous:
         return render(request, 'main/restricted.html')
