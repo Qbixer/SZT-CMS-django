@@ -87,7 +87,6 @@ def index(request):
             pageLayout.addPostForm = PostForm(auto_id=str(pageLayout.id)+'_add_post_%s')
         pageLayout.editForm = PageLayoutEditForm(instance=pageLayout,auto_id=str(pageLayout.id)+'_edit_page_layout_%s')
     pageLayouts.addForm = PageLayoutForm()
-    pageLayoutForm = PageLayoutForm
     return render(request, 'main/custom_page.html', {
         'section':home_page,
         'pageLayouts':pageLayouts

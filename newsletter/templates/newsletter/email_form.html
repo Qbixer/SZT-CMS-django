@@ -1,0 +1,39 @@
+{% extends 'main/index.html' %}
+{% block content %}
+{% load static %}
+{% if user.profile.moderator or user.is_superuser or user.is_staff %}
+  <script type="text/javascript" src="{% static 'ckeditor/ckeditor-init.js' %}"></script>
+  <script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+  <script type="text/javascript" src="{% static 'ckeditor/ckeditor/adapters/jquery.js' %}"></script>
+{% endif %}
+  {% if request.session.edit_mode %}
+     <div class="btn-group">
+      <a class="btn btn-secondary" href={% url 'newsletter_index' %} role="button">
+        Write email
+      </a>
+      <a class="btn btn-secondary" href={% url 'configure_email' %} role="button">
+        Configure email
+      </a>
+    </div>
+  {% endif %}
+  <div>
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="form-group">
+          {{ field.label_tag }}
+          <br/>
+          {{ field }}
+          {% if field.help_text %}
+            <small class="form-text text-muted">{{ field.help_text }}</small>
+          {% endif %}
+          {% for error in field.errors %}
+            <p style="color: red">{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endfor %}
+      <input class="btn btn-primary" type="submit" name="send_emails" value="Send emails"/>
+      </span>
+    </form>
+  </div>
+{% endblock %}

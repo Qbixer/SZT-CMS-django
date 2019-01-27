@@ -11,7 +11,4 @@ urlpatterns = [
     path('add/<int:section_id>/subsection/',views.add_subsection, name="add_subsection"),
     path('<section_url>',views.section_view, name="section"),
     path('<section_url>/<subsection_url>',views.subsection_view, name="subsection"),
-
-
-
 ]
