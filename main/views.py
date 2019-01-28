@@ -1,8 +1,17 @@
 from django.shortcuts import render, redirect
 from django.template import Template, Context
 from django.http import HttpResponse
-from main.models import Section,PageLayout,Post,PostComment,HomePage
+from main.models import Section,PageLayout,Post,PostComment,HomePage,EmailTemplate
 from main.forms import *
+from newsletter.forms import NewsletterUserForm
+from newsletter.models import NewsletterUser,MailConfiguration
+from django.template import Context, Template
+from django.utils.html import strip_tags
+from django.core.mail import get_connection, send_mail,EmailMultiAlternatives
+from django.contrib.sites.shortcuts import get_current_site
+from django.urls import reverse
+
+
 # Create your views here.
 def index(request):
     current_user = request.user
@@ -85,11 +94,14 @@ def index(request):
                 post.comments = comments
             pageLayout.posts = posts            
             pageLayout.addPostForm = PostForm(auto_id=str(pageLayout.id)+'_add_post_%s')
+        elif pageLayout.content_type.name == 'newsletter':
+            newsletterForm = NewsletterUserForm(auto_id=str(pageLayout.id)+'_newsletter_signup_%s')
+            pageLayout.newsletterForm = newsletterForm
         pageLayout.editForm = PageLayoutEditForm(instance=pageLayout,auto_id=str(pageLayout.id)+'_edit_page_layout_%s')
     pageLayouts.addForm = PageLayoutForm()
     return render(request, 'main/custom_page.html', {
         'section':home_page,
-        'pageLayouts':pageLayouts
+        'pageLayouts':pageLayouts,
     })
 
 def section_view(request, section_url):
@@ -137,6 +149,36 @@ def section_view(request, section_url):
             pageLayout = PageLayout.objects.get(id=request.POST.get('page_layout_id'))    
             pageLayout.deleted = True
             pageLayout.save()
+        if request.POST.get('newsletter_signup') and request.POST.get('page_layout_id'):
+            mailConfig = MailConfiguration.objects.first()
+            if mailConfig is None:
+                return render(request, 'main/error.html')
+            newsletterEmailTemplate = EmailTemplate.objects.get(email_type='activate_newsletter')
+            if newsletterEmailTemplate is None:
+                return render(request, 'main/error.html')
+            form = NewsletterUserForm(request.POST)
+            if form.is_valid():
+                newsletterUser = form.save(commit=False)
+                try:
+                    with get_connection(
+                        host=mailConfig.host, 
+                        username=mailConfig.address, 
+                        password=mailConfig.password, 
+                        use_tls=True
+                    ) as connection:
+                        current_site = get_current_site(request)
+                        context = Context({
+                            'activate_link':"http://"+current_site.domain+reverse('activate_newsletter',args=[newsletterUser.activation_code]),
+                            'delete_link':"http://"+current_site.domain+reverse('activate_newsletter',args=[newsletterUser.delete_code])
+                            })
+                        message = Template(newsletterEmailTemplate.body).render(context)
+                        msg = EmailMultiAlternatives(newsletterEmailTemplate.subject, strip_tags(message), mailConfig.address, [newsletterUser.email], connection=connection)
+                        msg.attach_alternative(message, "text/html")
+                        msg.send()
+                    newsletterUser.save()
+                except Exception as e:
+                    print(e)
+                    return render(request, 'main/error.html')
     if not current_user.is_anonymous: 
         if request.POST.get('add_comment') and request.POST.get('post_id'):
             form = PostCommentForm(request.POST)
@@ -176,6 +218,9 @@ def section_view(request, section_url):
                 post.comments = comments
             pageLayout.posts = posts            
             pageLayout.addPostForm = PostForm(auto_id=str(pageLayout.id)+'_add_post_%s')
+        elif pageLayout.content_type.name == 'newsletter':
+            newsletterForm = NewsletterUserForm(auto_id=str(pageLayout.id)+'_newsletter_signup_%s')
+            pageLayout.newsletterForm = newsletterForm
         pageLayout.editForm = PageLayoutEditForm(instance=pageLayout,auto_id=str(pageLayout.id)+'_edit_page_layout_%s')
     pageLayouts.addForm = PageLayoutForm()
     pageLayoutForm = PageLayoutForm

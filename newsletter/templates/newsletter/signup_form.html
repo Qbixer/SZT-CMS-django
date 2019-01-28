@@ -1,0 +1,21 @@
+<div>
+  <form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="form-group">
+        {{ field.label_tag }}
+        <br/>
+        {{ field }}
+        {% if field.help_text %}
+          <small class="form-text text-muted">{{ field.help_text }}</small>
+        {% endif %}
+        {% for error in field.errors %}
+          <p style="color: red">{{ error }}</p>
+        {% endfor %}
+      </div>
+    {% endfor %}
+    <input type="hidden" name="page_layout_id" value="{{pagelayout.id}}"/>
+    <input class="btn btn-primary" type="submit" name="newsletter_signup" value="Sing up"/>
+    </span>
+  </form>
+</div>

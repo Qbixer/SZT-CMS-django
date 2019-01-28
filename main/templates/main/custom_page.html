@@ -1,4 +1,9 @@
 {% extends 'main/index.html' %} 
+{% if section.tab_title|length > 0 %}
+  {% block title %}
+    {{section.tab_title}}
+  {% endblock %}
+{% endif %}
 {% block content %}
 {% load static %}
 {% if request.session.edit_mode and user.profile.moderator or request.session.edit_mode and user.is_superuser or request.session.edit_mode and user.is_staff %}
@@ -207,6 +212,10 @@
               </form>
             </div>
           </div>
+          {% elif widget.content_type.name == 'newsletter' %}
+          <div>
+            {% include "newsletter/signup_form.html" with form=widget.newsletterForm pagelayout=widget csrf_token=csrf_token only %} 
+          </div>
         {% endif %}
       </div>
       {% if not forloop.last %}
@@ -335,6 +344,10 @@
                 <hr/>           
               {% endif %} 
             {% endfor %}            
+          </div>
+        {% elif widget.content_type.name == 'newsletter' %}
+          <div>
+            {% include "newsletter/signup_form.html" with form=widget.newsletterForm pagelayout=widget csrf_token=csrf_token only %} 
           </div>
         {% endif %}
       </div>
