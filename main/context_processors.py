@@ -1,4 +1,4 @@
-from main.models import Section
+from main.models import Section,HomePage
 
 def sections_processor(request):
     if request.method == 'POST':
@@ -8,4 +8,5 @@ def sections_processor(request):
             request.session['edit_mode'] = False
     sections = Section.objects.filter(parent__isnull=True).order_by('order_number', 'id') #order by
     subsections = Section.objects.filter(parent__isnull=False).order_by('order_number', 'id') #order by
-    return {'sections': sections,'subsections':subsections}
+    home = HomePage.objects.first()
+    return {'sections': sections,'subsections':subsections,'home':home}

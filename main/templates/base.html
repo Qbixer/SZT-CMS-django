@@ -3,26 +3,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="{% static "js/jquery-3.3.1.min.js" %}"></script>
-    <script src="{% static "js/popper.min.js" %}"></script>
     <link rel="stylesheet" href="{% static "css/bootstrap.min.css" %}">
-    <script src="{% static "js/bootstrap.min.js" %}"></script>
     <link rel="stylesheet" href="{% static "css/all.min.css" %}">
+		<link rel="stylesheet" href="{% static "css/screen.css" %}" media="screen">
     <link rel="stylesheet" href="{% static "css/custom.css" %}">
 
     <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
 
+    <script src="{% static "js/jquery-3.3.1.min.js" %}"></script>
+    <script src="{% static "js/popper.min.js" %}"></script>
+    <script src="{% static "js/bootstrap.min.js" %}"></script>
 
-    <title>{% block title %}My amazing site{% endblock %}</title>
+
+    <title>{% block title %}My site{% endblock %}</title>
 </head>
 
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <a class="navbar-brand" href={% url 'main_index' %}>Navbar</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
+  <a class="navbar-brand" href={% url 'main_index' %}>{{ home }}</a>
+  <ul class="navbar-nav mr-auto">
   {% for section in sections %}
+    <li class="nav-item">
     {% if not section.hidden and not section.deleted or section.hidden and user.profile.moderator and not section.deleted and request.session.edit_mode or section.hidden and user.is_superuser and not section.deleted and request.session.edit_mode or section.hidden and user.is_staff and not section.deleted and request.session.edit_mode %}
     <div class="btn-group">
       {% if section.should_display and section.url is not null and section.url|length > 0 %}
@@ -71,6 +72,7 @@
       {% endif %}
     </div>
     {% endif %}
+    </li>
   {% endfor %}
   {% if request.session.edit_mode %}
     {% if user.profile.moderator or user.is_superuser or user.is_staff %}
@@ -79,25 +81,34 @@
       </a>
     {% endif %}
   {% endif %}
-    <a href="/account/logout">Logout</a>
-    <a href="/account/login">Login</a>
   {% if user.profile.moderator or user.is_superuser or user.is_staff %}
     {% if request.session.edit_mode %}
       <form method='post'>
         {% csrf_token %}
-        <input type="submit" name="normal_mode" value="Normal mode"/>
+        <input class="btn btn-secondary" type="submit" name="normal_mode" value="Normal mode"/>
       </form>
     {% else %}
       <form method='post'>
         {% csrf_token %}
-        <input type="submit" name="edit_mode" value="Edit mode"/>
+        <input class="btn btn-secondary" type="submit" name="edit_mode" value="Edit mode"/>
       </form>
     {% endif %}
+  {% endif %}
+  </ul>
+  {% if user.is_anonymous %}
+    <a class="btn btn-primary my-2 my-lg-0" href={% url 'login' %} role="button">
+      Login
+    </a>
+  {% else %}
+    <a class="btn btn-primary my-2 my-lg-0" href={% url 'logout' %} role="button">
+      Logout
+    </a>
   {% endif %}
 </nav>
 <div class="container">
     {% block content %}{% endblock %}
 </div>
+
 
 </body>
 </html>

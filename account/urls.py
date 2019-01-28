@@ -1,6 +1,7 @@
 from django.conf.urls import url
 from account import views as account_views
 from django.contrib.auth import views as auth_views
+from django.conf.urls import include
 
 
 urlpatterns = [
@@ -10,4 +11,6 @@ urlpatterns = [
         account_views.activate, name='activate'),
     url(r'^login/$', auth_views.LoginView.as_view(template_name='account/login.html',redirect_authenticated_user=True), name='login'),
     url(r'^logout/$', auth_views.LogoutView.as_view(next_page='/ui'), name='logout'),
+    url(r'^oauth/', include('social_django.urls', namespace='social')), 
+
 ]

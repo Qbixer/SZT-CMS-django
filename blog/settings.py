@@ -40,8 +40,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'social_django',
     'ckeditor',
-    'ckeditor_uploader'
+    'ckeditor_uploader',
+    'photologue',
+    'sortedm2m',
 ]
 
 MIDDLEWARE = [
@@ -52,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware', 
 ]
 
 ROOT_URLCONF = 'blog.urls'
@@ -67,6 +72,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends', 
+                'social_django.context_processors.login_redirect',
                 'main.context_processors.sections_processor'
             ],
         },
@@ -160,7 +167,24 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 LOGIN_REDIRECT_URL = '/ui/'
+LOGOUT_URL = '/account/logout/'
 
 LOGIN_URL = '/account/login/'
 
 #SESSION_COOKIE_AGE = 10
+
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.github.GithubOAuth2',
+    'social_core.backends.twitter.TwitterOAuth',
+    'social_core.backends.facebook.FacebookOAuth2',
+
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+SOCIAL_AUTH_GITHUB_KEY = '1d8d2d6211edac2e9e0e'
+SOCIAL_AUTH_GITHUB_SECRET = 'a0d9f1c88a6d7710f16ac85dd95d89a09f64169b'
+
+SOCIAL_AUTH_FACEBOOK_KEY = '374023009996233'  # App ID
+SOCIAL_AUTH_FACEBOOK_SECRET = '92ca4a3d372c05ee547b6f48deb793de'  # App Secret
