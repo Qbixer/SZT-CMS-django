@@ -1,0 +1,21 @@
+2	
+Activate newsletter	
+
+"<div>Aktywuj sobie newslettera klikając w poniższy link</div>
+
+<div>&nbsp;</div>
+
+<div>{{activate_link}}</div>
+
+<div>&nbsp;</div>
+
+<div>
+<hr />
+<p>Deaktywuj klikając tutaj</p>
+
+<p>{{delete_link}}</p>
+</div>"	
+
+activate_newsletter	
+
+Must include {{activate_link}}, can include {{delete_link}}
