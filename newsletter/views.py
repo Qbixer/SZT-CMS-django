@@ -48,3 +48,11 @@ def activate_account(request, activate):
     return render(request,'newsletter/activate_newsletter.html')   
   else:
     return render(request, 'main/error.html')
+
+def delete_account(request, delete):
+  newsletterUser = NewsletterUser.objects.get(delete_code=delete)
+  if newsletterUser is not None:
+    newsletterUser.delete()
+    return render(request,'newsletter/delete_newsletter.html')   
+  else:
+    return render(request, 'main/error.html')

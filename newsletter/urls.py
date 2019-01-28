@@ -8,4 +8,6 @@ urlpatterns = [
     path('configure_email', views.index, name='configure_email'),
     url(r'^activate/(?P<activate>[0-9A-Za-z]{64})',
         views.activate_account, name='activate_newsletter'),
+    url(r'^delete/(?P<delete>[0-9A-Za-z]{64})',
+        views.delete_account, name='delete_newsletter'),
 ]
