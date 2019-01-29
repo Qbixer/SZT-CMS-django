@@ -76,3 +76,8 @@ class EmailTemplate(models.Model):
 
     def __str__(self):
         return self.email_type
+
+class MailConfiguration(models.Model):
+  host = models.CharField(max_length=255)
+  address = models.EmailField()
+  password = models.CharField(max_length=255)

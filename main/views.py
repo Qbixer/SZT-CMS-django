@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect
 from django.template import Template, Context
 from django.http import HttpResponse
-from main.models import Section,PageLayout,Post,PostComment,HomePage,EmailTemplate
+from main.models import Section,PageLayout,Post,PostComment,HomePage,EmailTemplate,MailConfiguration
 from main.forms import *
 from newsletter.forms import NewsletterUserForm
-from newsletter.models import NewsletterUser,MailConfiguration
+from newsletter.models import NewsletterUser
 from django.template import Context, Template
 from django.utils.html import strip_tags
 from django.core.mail import get_connection, send_mail,EmailMultiAlternatives
@@ -169,7 +169,7 @@ def section_view(request, section_url):
                         current_site = get_current_site(request)
                         context = Context({
                             'activate_link':"http://"+current_site.domain+reverse('activate_newsletter',args=[newsletterUser.activation_code]),
-                            'delete_link':"http://"+current_site.domain+reverse('activate_newsletter',args=[newsletterUser.delete_code])
+                            'delete_link':"http://"+current_site.domain+reverse('deactivate_newsletter',args=[newsletterUser.delete_code])
                             })
                         message = Template(newsletterEmailTemplate.body).render(context)
                         msg = EmailMultiAlternatives(newsletterEmailTemplate.subject, strip_tags(message), mailConfig.address, [newsletterUser.email], connection=connection)
@@ -177,8 +177,9 @@ def section_view(request, section_url):
                         msg.send()
                     newsletterUser.save()
                 except Exception as e:
-                    print(e)
                     return render(request, 'main/error.html')
+            else:
+                return render(request, 'main/error.html')
     if not current_user.is_anonymous: 
         if request.POST.get('add_comment') and request.POST.get('post_id'):
             form = PostCommentForm(request.POST)

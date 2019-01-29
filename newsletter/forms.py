@@ -1,6 +1,6 @@
 from django.forms import ModelForm
 from django import forms
-from .models import NewsletterUser,MailConfiguration,EmailSent
+from .models import NewsletterUser,EmailSent
 
 class NewsletterUserForm(ModelForm):
     class Meta:
@@ -8,16 +8,6 @@ class NewsletterUserForm(ModelForm):
         fields = ('email',)
         widgets = {
             'email': forms.EmailInput(attrs={'class':"form-control"}),
-        }
-
-class MailConfigurationForm(ModelForm):
-    class Meta:
-        model = MailConfiguration
-        fields = ('host','address','password')
-        widgets = {
-            'host': forms.TextInput(attrs={'class':"form-control",'maxlength':"255"}),
-            'address': forms.EmailInput(attrs={'class':"form-control"}),
-            'password': forms.PasswordInput(attrs={'class': "form-control"})
         }
 
 class EmailSentForm(ModelForm):
