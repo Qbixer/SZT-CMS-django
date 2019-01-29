@@ -12,6 +12,19 @@ class ContentType(models.Model):
     def __str__(self):
         return self.name
 
+class MailConfiguration(models.Model):
+  host = models.CharField(max_length=255)
+  address = models.EmailField()
+  password = models.CharField(max_length=255)
+
+class EmailTemplate(models.Model):
+    email_type = models.CharField(max_length=255,null=False,blank=False,unique=True)
+    subject = models.CharField(max_length=500,null=False,blank=False)
+    body = RichTextField()
+    helper_text = models.CharField(max_length=1000)
+    def __str__(self):
+        return self.email_type
+
 class Section(models.Model):
     title = models.CharField(max_length=50, unique=False, help_text="Required. Maximum 50 characters.", blank=False)
     tab_title = models.CharField(max_length=50, unique=False, null=True, help_text="Optional. Maximum 50 characters.", blank=True)
@@ -67,17 +80,3 @@ class PostComment(models.Model):
 class CustomHTML(models.Model):
     parent = models.ForeignKey(PageLayout, on_delete=models.CASCADE)
     body = RichTextUploadingField()
-
-class EmailTemplate(models.Model):
-    email_type = models.CharField(max_length=255,null=False,blank=False,unique=True)
-    subject = models.CharField(max_length=500,null=False,blank=False)
-    body = RichTextField()
-    helper_text = models.CharField(max_length=1000)
-
-    def __str__(self):
-        return self.email_type
-
-class MailConfiguration(models.Model):
-  host = models.CharField(max_length=255)
-  address = models.EmailField()
-  password = models.CharField(max_length=255)

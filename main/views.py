@@ -17,7 +17,7 @@ def index(request):
     current_user = request.user
     home_page = HomePage.objects.first()
     if home_page is None:
-        return render(request, 'main/404.html')
+        home_page = HomePage.objects.create(title="Home page",tab_title="Home page",background_color="#ffffff",background_color_theme="#ffffff")
     if not (current_user.is_anonymous or not (current_user.is_superuser or current_user.is_staff or current_user.profile.moderator)) and request.method == 'POST':
         if request.POST.get('add_page_layout'): 
             form = PageLayoutForm(request.POST)
@@ -430,7 +430,7 @@ def edit_main(request):
         return redirect('main_index')
     home_page = HomePage.objects.first()
     if home_page is None:
-        return render(request, 'main/404.html')
+        home_page = HomePage.objects.create(title="Home page",tab_title="Home page",background_color="#ffffff",background_color_theme="#ffffff")
     if request.method == 'POST':
         if request.POST.get('edit_section'):
             form = HomePageForm(request.POST,instance=home_page)
