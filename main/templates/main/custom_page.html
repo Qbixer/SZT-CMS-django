@@ -180,13 +180,13 @@
                           <input type="hidden" name="post_id" value="{{post.id}}"/>
                           <input class="btn btn-primary" type="submit" name="add_comment" value="Add comment"/>
                         </form>
-                      </div>
-                    {% endif %}
-                  </div>
-                </div> 
-              <hr/>              
-            {% endfor %}
-            <button class="btn btn-primary" id='button_add_post{{widget.id}}' onclick="toggleStuff('add_post{{widget.id}}');toggleStuff('button_add_post{{widget.id}}')" data-toggle="tooltip" title="Add post" data-placement="right">
+                       </div>
+                     {% endif %}
+                   </div>
+                 </div> 
+               <hr/>              
+             {% endfor %}
+             <button class="btn btn-primary" id='button_add_post{{widget.id}}' onclick="toggleStuff('add_post{{widget.id}}');toggleStuff('button_add_post{{widget.id}}')" data-toggle="tooltip" title="Add post" data-placement="right">
               <i class="fas fa-plus-square"></i>
             </button>
             <div id="add_post{{widget.id}}" style="display: none">
@@ -212,9 +212,41 @@
               </form>
             </div>
           </div>
-          {% elif widget.content_type.name == 'newsletter' %}
+        {% elif widget.content_type.name == 'newsletter' %}
           <div>
             {% include "newsletter/signup_form.html" with form=widget.newsletterForm pagelayout=widget csrf_token=csrf_token only %} 
+          </div>
+        {% elif widget.content_type.name == 'static' %}
+          <div id='custom_html{{widget.customHTML.id}}'>
+            {{ widget.customHTML.body | safe }}
+            <button class="btn btn-primary" onclick="toggleStuff('edit_custom_html{{widget.customHTML.id}}');toggleStuff('custom_html{{widget.customHTML.id}}')" data-toggle="tooltip" title="Edit HTML" data-placement="right">
+              <i class="fas fa-edit"></i>
+            </button>
+          </div>
+          <div id="edit_custom_html{{widget.customHTML.id}}" style="display: none">
+            <form method="post">
+              {% csrf_token %}
+              {% for field in widget.editCustomHTML %}
+                <div class="form-group">
+                  {{ field.label_tag }}
+                  <br/>
+                  {{ field }}
+                  {% if field.help_text %}
+                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                  {% endif %}
+                  {% for error in field.errors %}
+                    <p style="color: red">{{ error }}</p>
+                  {% endfor %}
+                </div>
+              {% endfor %}
+              <input type="hidden" name="custom_html_id" value="{{widget.customHTML.id}}"/>
+              <span>
+                <input class="btn btn-primary" type="submit" name="edit_custom_html" value="Save changes" />
+                <div class="btn btn-secondary" onclick="toggleStuff('custom_html{{widget.customHTML.id}}');toggleStuff('edit_custom_html{{widget.customHTML.id}}');" data-toggle="tooltip" title="Cancel" data-placement="top">
+                  <i class="fas fa-times"></i>
+                </div>
+              </span>
+            </form>
           </div>
         {% endif %}
       </div>
@@ -348,6 +380,10 @@
         {% elif widget.content_type.name == 'newsletter' %}
           <div>
             {% include "newsletter/signup_form.html" with form=widget.newsletterForm pagelayout=widget csrf_token=csrf_token only %} 
+          </div>
+        {% elif widget.content_type.name == 'static' %}
+          <div>
+            {{ widget.customHTML.body | safe }}
           </div>
         {% endif %}
       </div>

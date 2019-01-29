@@ -1,7 +1,7 @@
 from django.forms import ModelForm
 from django import forms
 
-from main.models import Section,PageLayout,Post,PostComment
+from main.models import Section,PageLayout,Post,PostComment,CustomHTML,HomePage
 
 class SectionForm(ModelForm):   
     class Meta:
@@ -9,6 +9,15 @@ class SectionForm(ModelForm):
         exclude = ['deleted','parent']
         widgets = {
             'background_color': forms.TextInput(attrs={'class':"form-control",'type':"color"})
+        }
+
+class HomePageForm(ModelForm):
+    class Meta:
+        model = HomePage
+        fields = ('title','tab_title','background_color','background_color_theme')
+        widgets = {
+            'background_color': forms.TextInput(attrs={'class':"form-control",'type':"color"}),
+            'background_color_theme': forms.TextInput(attrs={'class':"form-control",'type':"color"})
         }
 
 class PageLayoutForm(ModelForm):
@@ -45,3 +54,8 @@ class PostCommentForm(ModelForm):
         widgets = {
             'body': forms.Textarea(attrs={'class':"form-control", 'rows':"3", 'maxlength':"1000"})
         }
+
+class CustomHTMLForm(ModelForm):
+    class Meta:
+        model = CustomHTML
+        fields = ('body',)

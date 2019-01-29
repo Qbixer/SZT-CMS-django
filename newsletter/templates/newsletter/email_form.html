@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% block title %}Newsletter{% endblock %}
 {% block content %}
 {% load static %}
 {% if user.profile.moderator or user.is_superuser or user.is_staff %}
@@ -6,16 +7,6 @@
   <script type="text/javascript" src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
   <script type="text/javascript" src="{% static 'ckeditor/ckeditor/adapters/jquery.js' %}"></script>
 {% endif %}
-  {% if request.session.edit_mode %}
-     <div class="btn-group">
-      <a class="btn btn-secondary" href={% url 'newsletter_index' %} role="button">
-        Write email
-      </a>
-      <a class="btn btn-secondary" href={% url 'configure_email' %} role="button">
-        Configure email
-      </a>
-    </div>
-  {% endif %}
   <div>
     <form method="post">
       {% csrf_token %}

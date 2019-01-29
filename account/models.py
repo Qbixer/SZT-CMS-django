@@ -7,6 +7,8 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     email_confirmed = models.BooleanField(default=False)
     moderator = models.BooleanField(default=False)
+    def __str__(self):
+        return self.user.username
 
 @receiver(post_save, sender=User)
 def update_user_profile(sender, instance, created, **kwargs):

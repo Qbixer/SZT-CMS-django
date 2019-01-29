@@ -21,6 +21,13 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <a class="navbar-brand" href={% url 'main_index' %}>{{ home }}</a>
+  {% if not user.is_anonymous and request.session.edit_mode %}
+    {% if user.profile.moderator or user.is_superuser or user.is_staff %}
+      <a class="btn btn-light" href={% url 'edit_main' %} role="button">
+        <i class="fas fa-edit"></i>
+      </a>
+    {% endif %}
+  {% endif %}
   <ul class="navbar-nav mr-auto">
   {% for section in sections %}
     <li class="nav-item">
@@ -82,6 +89,12 @@
     {% endif %}
   {% endif %}
   {% if user.profile.moderator or user.is_superuser or user.is_staff %}
+    <a class="btn btn-primary my-2 my-lg-0" href={% url 'newsletter_index' %} role="button">
+      Newsletter
+    </a>
+    <a class="btn btn-primary my-2 my-lg-0" href={% url 'admin:index' %} role="button">
+      Admin
+    </a>
     {% if request.session.edit_mode %}
       <form method='post'>
         {% csrf_token %}
@@ -96,6 +109,9 @@
   {% endif %}
   </ul>
   {% if user.is_anonymous %}
+    <a class="btn btn-primary my-2 my-lg-0" href={% url 'signup' %} role="button">
+      Sign up
+    </a>
     <a class="btn btn-primary my-2 my-lg-0" href={% url 'login' %} role="button">
       Login
     </a>
