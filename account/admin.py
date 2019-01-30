@@ -6,6 +6,6 @@ from .models import Profile
 
 @admin.register(Profile)
 class ProfileAdmin(admin.ModelAdmin):
-  fields = ('user','email_confirmed','moderator')
+  fields = ('user','moderator')
   readonly_fields = ('user',)
 

@@ -54,7 +54,8 @@ class PageLayout(models.Model):
     title = models.CharField(max_length=200, null=True, blank=True)
     order_number = models.IntegerField(default=0)
     deleted = models.BooleanField(default=False, blank=False)
-
+    def __str__(self):
+        return self.title
 
 class Post(models.Model):
     parent = models.ForeignKey(PageLayout, on_delete=models.CASCADE)

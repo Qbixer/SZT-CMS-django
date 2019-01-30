@@ -483,6 +483,10 @@ def edit_section(request,section_id):
             if form.is_valid():
                 form.save()
                 return redirect('main_index')
+        elif request.POST.get('delete_section'):
+            section.deleted = True
+            section.save()    
+            return redirect('main_index')
         else:
             form = SectionForm(instance=section)
     else:
@@ -530,6 +534,10 @@ def edit_subsection(request,subsection_id):
             if form.is_valid():
                 form.save()
                 return redirect('main_index')
+        elif request.POST.get('delete_section'):
+            subsection.deleted = True
+            subsection.save()
+            return redirect('main_index')
         else:
             form = SectionForm(instance=subsection)
     else:
