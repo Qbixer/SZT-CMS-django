@@ -1,7 +1,0 @@
-pip install django-ckeditor
-pip install Pillow
-
-pip install django-photologue
-pip install pytz
-
-pip install social-auth-app-django

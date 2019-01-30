@@ -28,8 +28,8 @@ def index(request):
           return render(request, 'main/error.html')
         users = NewsletterUser.objects.filter(activated=True).values('email','delete_code')
         email_list = list(map(lambda x: x['email'], users))
+        email = form.save(commit=False)
         if len(users) > 0:
-          email = form.save(commit=False)
           try:
             with get_connection(
               host=mailConfig.host, 
